@@ -1,5 +1,17 @@
 package com.example.mhacks;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
+
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
@@ -12,6 +24,7 @@ import android.hardware.SensorManager;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
@@ -88,7 +101,11 @@ public class MainActivity extends Activity implements SensorListener {
 					// Reset tempo flags on eccentric phase of rep
 					concentricTempoTimeFinished = false;
 					concentricTempoTimeStarted = false;
-					if (startedWorkout == true && initialPositionAfterRep == false) { reps++; initialPositionAfterRep = true; }
+					if (startedWorkout == true && initialPositionAfterRep == false) { 
+						reps++; 
+						initialPositionAfterRep = true; 
+						new UploadWorkoutData().execute(reps + "");
+					}
 					Log.d("reps", reps + "");
 				}
 
@@ -148,6 +165,27 @@ public class MainActivity extends Activity implements SensorListener {
 			}
 		}
 	}
+	
+	public static void sendHTTPPostRequest(String reps) {
+		// Create a new HttpClient and Post Header
+		HttpClient httpclient = new DefaultHttpClient();
+		HttpPost httppost = new HttpPost("http://localhost:3000/");
+
+		try {
+		    // Add your data
+		    List nameValuePairs = new ArrayList();
+			nameValuePairs.add(new BasicNameValuePair("reps", "" + reps));
+			httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+
+		    // Execute HTTP Post Request
+		    HttpResponse response = httpclient.execute(httppost);
+
+		} catch (ClientProtocolException e) {
+		    // TODO Auto-generated catch block
+		} catch (IOException e) {
+		    // TODO Auto-generated catch block
+		}
+	}
 
 
 	@Override
@@ -196,4 +234,22 @@ public class MainActivity extends Activity implements SensorListener {
 	    zacc.setText(getNdefMessages(intent));
 	}
 
+	private class UploadWorkoutData extends AsyncTask<String, String, String> {
+
+		@Override
+		  protected String doInBackground(String... params) {
+			// TODO Auto-generated method stub
+		        MainActivity.sendHTTPPostRequest(params[0]);
+		        return null;
+		  }
+		protected void onPostExecute(Double result){
+			Log.d("I finished post", "I finished post");
+		  } 
+		  
+		  protected void onProgressUpdate(Integer... progress){
+			Log.d("I finished post", "I finished post");
+		  }	
+	}
+
+	
 }
