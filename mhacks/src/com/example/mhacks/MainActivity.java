@@ -1,5 +1,6 @@
 package com.example.mhacks;
 
+<<<<<<< HEAD
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,6 +14,8 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 
 import android.R;
+=======
+>>>>>>> c30bacac39d5068e16c42ce796aebc0ec48af2c7
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
@@ -22,16 +25,15 @@ import android.content.IntentFilter.MalformedMimeTypeException;
 import android.hardware.Sensor;
 import android.hardware.SensorListener;
 import android.hardware.SensorManager;
-import android.media.MediaPlayer;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.util.Log;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.androidquery.AQuery;
 
@@ -74,6 +76,7 @@ public class MainActivity extends Activity implements SensorListener {
 		xorient = (TextView) findViewById(R.id.xvalues);
 		yorient = (TextView) findViewById(R.id.yvalues);
 		zorient = (TextView) findViewById(R.id.zvalues);
+		text = (TextView) findViewById(R.id.textView1);
 	}
 
 	@SuppressLint("NewApi") @Override
@@ -90,7 +93,7 @@ public class MainActivity extends Activity implements SensorListener {
 	    }
 	    
 	    Intent intent = getIntent();
-	    zacc.setText(getNdefMessages(intent));
+	    text.setText(getNdefMessages(intent));
 	}
 	 
 
@@ -106,6 +109,7 @@ public class MainActivity extends Activity implements SensorListener {
 					// Reset tempo flags on eccentric phase of rep
 					concentricTempoTimeFinished = false;
 					concentricTempoTimeStarted = false;
+
 					if (startedWorkout == true && initialPositionAfterRep == false) { 
 						reps++; 
 						initialPositionAfterRep = true; 
@@ -116,6 +120,13 @@ public class MainActivity extends Activity implements SensorListener {
 						String path = "";
 						String fileName = "";
 					}
+
+					if (startedWorkout == true && initialPositionAfterRep == false) { 
+						reps++; 
+						initialPositionAfterRep = true; 
+						new UploadWorkoutData().execute(reps + "");
+					}
+
 					Log.d("reps", reps + "");
 				}
 
@@ -177,6 +188,50 @@ public class MainActivity extends Activity implements SensorListener {
 				SensorManager.SENSOR_ORIENTATION |
 				SensorManager.SENSOR_ACCELEROMETER,
 				SensorManager.SENSOR_DELAY_NORMAL);
+		
+		
+		//Ndef ndef = Ndef.get(detectedTag);
+
+		
+	    Intent intent = getIntent();
+
+        try{
+            //ndef.connect();
+
+            Parcelable[] messages = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
+
+            if (messages != null) {
+                NdefMessage[] ndefMessages = new NdefMessage[messages.length];
+                for (int i = 0; i < messages.length; i++) {
+                    ndefMessages[i] = (NdefMessage) messages[i];
+                }
+            NdefRecord record = ndefMessages[0].getRecords()[0];
+
+            byte[] payload = record.getPayload();
+            String text_2 = new String(payload);
+            text.setText("NFC: " + text_2);
+            return;
+            }
+        }catch (Exception e) {
+            Toast.makeText(getApplicationContext(), "Cannot Read From Tag.", Toast.LENGTH_LONG).show();
+        }
+		
+	
+		
+		
+		NdefMessage[] msgs = null;
+		
+		if (NfcAdapter.ACTION_NDEF_DISCOVERED.equals(getIntent().getAction())) {
+	        Parcelable[] rawMsgs = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
+	        if (rawMsgs != null) {
+	            msgs = new NdefMessage[rawMsgs.length];
+	            for (int i = 0; i < rawMsgs.length; i++) {
+	                msgs[i] = (NdefMessage) rawMsgs[i];
+	            }
+	            
+	            text.setText("NFC: " + msgs[0].getRecords()[0].getPayload().toString());
+	        }
+	    }
 	}
 
 	@Override
@@ -240,6 +295,4 @@ public class MainActivity extends Activity implements SensorListener {
 		        return null;
 		  }
 	}
-
-	
 }
