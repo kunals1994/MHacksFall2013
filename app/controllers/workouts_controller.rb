@@ -5,7 +5,15 @@ class WorkoutsController < ApplicationController
   # GET /workouts.json
   def index
     @workouts = Workout.all
-    puts params[:reps]
+
+    if params[:reps]
+      @name = "Bicep Curls"
+      @reps = params[:reps]
+
+    respond_to do |format|
+      format.js
+    end
+    end
   end
 
   # GET /workouts/1
@@ -61,6 +69,17 @@ class WorkoutsController < ApplicationController
       format.json { head :no_content }
     end
   end
+
+  # def android_update 
+  #   if params[:reps]
+  #     @name = "Bicep Curls"
+  #     @reps = params[:reps]
+
+  #     respond_to do |format|
+  #       format.js {}
+  #     end
+  #   end
+  # end
 
   private
     # Use callbacks to share common setup or constraints between actions.

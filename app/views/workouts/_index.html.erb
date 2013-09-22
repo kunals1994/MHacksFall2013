@@ -1,4 +1,4 @@
-<section class="workout">
+
   <div class="state">
      Rest Period: 30s
     <div class="state-inactive"> </div>
@@ -6,11 +6,15 @@
   <% for i in 1..5 do %>
   <div class="exercise">
       <div class="index"> <div class="index-pin"> <%= i %> </div> </div>
-      <div class="name"> <%= @name if !@name.nil? %> </div>
-      <div class="reps"> <%= @reps if !@reps.nil? %> </div>
+      <%= @reps %>
+      <div class="name"> reps </div>
+      <div class="reps"> reps </div>
       <div class="spin">  </div>
     </ul>
   </div>  
   <% end %>
-</section>
 
+
+<script>
+alert("hello");
+</script>

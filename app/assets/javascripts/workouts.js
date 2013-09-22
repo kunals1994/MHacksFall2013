@@ -1,5 +1,4 @@
 $(document).on('ready page:load', function() {
-
 	// Get a custom event handler 
 
 	// Options for the UI spinner (spin.js in vendor/assets/javascripts)

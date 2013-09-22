@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.http.HttpResponse;
-import org.apache.http.StatusLine;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
@@ -33,6 +32,9 @@ import android.os.Parcelable;
 import android.util.Log;
 import android.widget.TextView;
 
+import com.androidquery.AQuery;
+import com.androidquery.callback.AjaxCallback;
+
 
 public class MainActivity extends Activity implements SensorListener {
 
@@ -57,6 +59,7 @@ public class MainActivity extends Activity implements SensorListener {
 	boolean startedWorkout = false;
 	boolean concentricTempoTimeStarted = false;
 	boolean concentricTempoTimeFinished = false;
+	private AQuery aq;
 
 	/** Called when the activity is first created. */
 	@Override
@@ -112,14 +115,6 @@ public class MainActivity extends Activity implements SensorListener {
 						
 						String path = "";
 						String fileName = "";
-
-					    try {
-					        mp.setDataSource(path+"/"+fileName);
-					        mp.prepare();
-					        mp.start();
-					    } catch (Exception e) {
-					        e.printStackTrace();
-					    }
 					}
 					Log.d("reps", reps + "");
 				}
@@ -132,13 +127,8 @@ public class MainActivity extends Activity implements SensorListener {
 
 				if (values[1] < 0) {
 					// Person is at the top of the rep
-					//float endConcentricTime = System.nanoTime();
-					//float concentricTempo = endConcentricTime - startConcentricTime;
 					startedWorkout = true;
 					initialPositionAfterRep = false;
-
-					//Log.d("concentricTempo", concentricTempo + "");
-
 				}
 
 				if (values[1] < -7 && values[1] > -9) {
@@ -159,7 +149,6 @@ public class MainActivity extends Activity implements SensorListener {
 
 	public void onAccuracyChanged(int sensor, int accuracy) {
 		Log.d("Accuracy","onAccuracyChanged: " + sensor + ", accuracy: " + accuracy);
-
 	}
 
 	public void startConcentricTempoTime() {
@@ -180,35 +169,6 @@ public class MainActivity extends Activity implements SensorListener {
 			}
 		}
 	}
-	
-	public static void sendHTTPGetRequest(String reps) {
-		// Create a new HttpClient and Post Header
-		String url = "http://67.194.74.148:3000";
-		List params = new ArrayList();
-		params.add(new BasicNameValuePair("reps", "" + reps));
-		String paramString = URLEncodedUtils.format(params, "utf-8");
-		url += "?" + paramString;
-		HttpClient httpclient = new DefaultHttpClient();
-		HttpGet httpget = new HttpGet(url);
-		httpget.setHeader("Accept", "application/javascript");
-		httpget.setHeader("Content-Type", "application/javascript");
-	
-
-		try {
-//			httpget.setEntity(new UrlEncodedFormEntity(params));
-			Log.d("url", url + "");
-		    // Execute HTTP Get Request
-		    HttpResponse response = httpclient.execute(httpget);
-		    StatusLine statusLine = response.getStatusLine();
-		    Log.d("HTTP Status Code: ", statusLine.getStatusCode() + "");
-
-		} catch (ClientProtocolException e) {
-		    // TODO Auto-generated catch block
-		} catch (IOException e) {
-		    // TODO Auto-generated catch block
-		}
-	}
-
 
 	@Override
 	protected void onResume() {
@@ -261,16 +221,24 @@ public class MainActivity extends Activity implements SensorListener {
 		@Override
 		  protected String doInBackground(String... params) {
 			// TODO Auto-generated method stub
-		        MainActivity.sendHTTPGetRequest(params[0]);
+			String url = "http://hospitaldocumentviewer.appspot.com/new";
+			List parameters = new ArrayList();
+			parameters.add(new BasicNameValuePair("reps", "" + reps));
+			String paramString = URLEncodedUtils.format(parameters, "utf-8");
+			url += "?" + paramString;
+			HttpClient httpclient = new DefaultHttpClient();
+			HttpGet httpget = new HttpGet(url);
+			httpget.setHeader("Accept", "application/javascript");
+			httpget.setHeader("Content-Type", "application/javascript");
+			try {
+			    HttpResponse response = httpclient.execute(httpget);
+			} catch (ClientProtocolException e) {
+			    // TODO Auto-generated catch block
+			} catch (IOException e) {
+			    // TODO Auto-generated catch block
+			}
 		        return null;
 		  }
-		protected void onPostExecute(Double result){
-			Log.d("I finished post", "I finished post");
-		  } 
-		  
-		  protected void onProgressUpdate(Integer... progress){
-			Log.d("I finished post", "I finished post");
-		  }	
 	}
 
 	

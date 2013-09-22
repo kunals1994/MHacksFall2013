@@ -9,7 +9,7 @@ MotionCapture::Application.configure do
   # Do not eager load code on boot.
   config.eager_load = false
 
-  config.assets.paths << Rails.root.join('app', 'assets', 'fonts')
+  # config.action_controller.allow_forgery_protection = false
 
   # Show full error reports and disable caching.
   config.consider_all_requests_local       = true
