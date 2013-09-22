@@ -1,18 +1,5 @@
 package com.example.mhacks;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.http.HttpResponse;
-import org.apache.http.StatusLine;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.utils.URLEncodedUtils;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.message.BasicNameValuePair;
-
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
@@ -22,16 +9,15 @@ import android.content.IntentFilter.MalformedMimeTypeException;
 import android.hardware.Sensor;
 import android.hardware.SensorListener;
 import android.hardware.SensorManager;
-import android.media.MediaPlayer;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.util.Log;
 import android.widget.TextView;
+import android.widget.Toast;
 
 
 public class MainActivity extends Activity implements SensorListener {
@@ -71,6 +57,7 @@ public class MainActivity extends Activity implements SensorListener {
 		xorient = (TextView) findViewById(R.id.xvalues);
 		yorient = (TextView) findViewById(R.id.yvalues);
 		zorient = (TextView) findViewById(R.id.zvalues);
+		text = (TextView) findViewById(R.id.textView1);
 	}
 
 	@SuppressLint("NewApi") @Override
@@ -87,7 +74,7 @@ public class MainActivity extends Activity implements SensorListener {
 	    }
 	    
 	    Intent intent = getIntent();
-	    zacc.setText(getNdefMessages(intent));
+	    text.setText(getNdefMessages(intent));
 	}
 	 
 
@@ -103,24 +90,7 @@ public class MainActivity extends Activity implements SensorListener {
 					// Reset tempo flags on eccentric phase of rep
 					concentricTempoTimeFinished = false;
 					concentricTempoTimeStarted = false;
-					if (startedWorkout == true && initialPositionAfterRep == false) { 
-						reps++; 
-						initialPositionAfterRep = true; 
-						new UploadWorkoutData().execute(reps + "");
-						
-						MediaPlayer mp = new MediaPlayer();
-						
-						String path = "";
-						String fileName = "";
-
-					    try {
-					        mp.setDataSource(path+"/"+fileName);
-					        mp.prepare();
-					        mp.start();
-					    } catch (Exception e) {
-					        e.printStackTrace();
-					    }
-					}
+					if (startedWorkout == true && initialPositionAfterRep == false) { reps++; initialPositionAfterRep = true; }
 					Log.d("reps", reps + "");
 				}
 
@@ -180,34 +150,6 @@ public class MainActivity extends Activity implements SensorListener {
 			}
 		}
 	}
-	
-	public static void sendHTTPGetRequest(String reps) {
-		// Create a new HttpClient and Post Header
-		String url = "http://67.194.74.148:3000";
-		List params = new ArrayList();
-		params.add(new BasicNameValuePair("reps", "" + reps));
-		String paramString = URLEncodedUtils.format(params, "utf-8");
-		url += "?" + paramString;
-		HttpClient httpclient = new DefaultHttpClient();
-		HttpGet httpget = new HttpGet(url);
-		httpget.setHeader("Accept", "application/javascript");
-		httpget.setHeader("Content-Type", "application/javascript");
-	
-
-		try {
-//			httpget.setEntity(new UrlEncodedFormEntity(params));
-			Log.d("url", url + "");
-		    // Execute HTTP Get Request
-		    HttpResponse response = httpclient.execute(httpget);
-		    StatusLine statusLine = response.getStatusLine();
-		    Log.d("HTTP Status Code: ", statusLine.getStatusCode() + "");
-
-		} catch (ClientProtocolException e) {
-		    // TODO Auto-generated catch block
-		} catch (IOException e) {
-		    // TODO Auto-generated catch block
-		}
-	}
 
 
 	@Override
@@ -217,6 +159,50 @@ public class MainActivity extends Activity implements SensorListener {
 				SensorManager.SENSOR_ORIENTATION |
 				SensorManager.SENSOR_ACCELEROMETER,
 				SensorManager.SENSOR_DELAY_NORMAL);
+		
+		
+		//Ndef ndef = Ndef.get(detectedTag);
+
+		
+	    Intent intent = getIntent();
+
+        try{
+            //ndef.connect();
+
+            Parcelable[] messages = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
+
+            if (messages != null) {
+                NdefMessage[] ndefMessages = new NdefMessage[messages.length];
+                for (int i = 0; i < messages.length; i++) {
+                    ndefMessages[i] = (NdefMessage) messages[i];
+                }
+            NdefRecord record = ndefMessages[0].getRecords()[0];
+
+            byte[] payload = record.getPayload();
+            String text_2 = new String(payload);
+            text.setText("NFC: " + text_2);
+            return;
+            }
+        }catch (Exception e) {
+            Toast.makeText(getApplicationContext(), "Cannot Read From Tag.", Toast.LENGTH_LONG).show();
+        }
+		
+	
+		
+		
+		NdefMessage[] msgs = null;
+		
+		if (NfcAdapter.ACTION_NDEF_DISCOVERED.equals(getIntent().getAction())) {
+	        Parcelable[] rawMsgs = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
+	        if (rawMsgs != null) {
+	            msgs = new NdefMessage[rawMsgs.length];
+	            for (int i = 0; i < rawMsgs.length; i++) {
+	                msgs[i] = (NdefMessage) rawMsgs[i];
+	            }
+	            
+	            text.setText("NFC: " + msgs[0].getRecords()[0].getPayload().toString());
+	        }
+	    }
 	}
 
 	@Override
@@ -256,22 +242,4 @@ public class MainActivity extends Activity implements SensorListener {
 	    zacc.setText(getNdefMessages(intent));
 	}
 
-	private class UploadWorkoutData extends AsyncTask<String, String, String> {
-
-		@Override
-		  protected String doInBackground(String... params) {
-			// TODO Auto-generated method stub
-		        MainActivity.sendHTTPGetRequest(params[0]);
-		        return null;
-		  }
-		protected void onPostExecute(Double result){
-			Log.d("I finished post", "I finished post");
-		  } 
-		  
-		  protected void onProgressUpdate(Integer... progress){
-			Log.d("I finished post", "I finished post");
-		  }	
-	}
-
-	
 }
