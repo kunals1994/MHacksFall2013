@@ -1,0 +1,79 @@
+// Place all the styles related to the workouts controller here.
+// They will automatically be included in application.css.
+// You can use Sass (SCSS) here: http://sass-lang.com/
+
+
+@import "library/library";
+
+//LAYOUT
+.head {
+	text-align: center;
+	margin: 0 auto;
+	padding: 10px;
+}
+
+// WORKOUT
+
+.workout {
+	font-family: "AlteHaasGrotesk";
+	font-size: 20px;
+	width: 60%;
+	margin: 0 auto;
+}
+
+// STATES
+.state {
+	overflow: hidden;
+	padding: 10px;
+}
+.state-inactive {
+	border-radius: 50%;
+	border: 1px solid #aaa;
+	height: 15px;
+	color: red;
+	background-color: red;
+	width: 15px;
+	float: right;
+	@include simple-vert-gradient(#f00);
+}
+
+.state-active {
+	
+}
+
+.exercise {
+	padding: 20px;
+	border: 1px solid #ddd;
+	overflow: hidden;
+	@include complex-hr-gradient(#8ae, #48d, #36c);
+}
+
+.index {
+	text-align: center;
+	float: left;
+	color: #f33;
+	font-weight: bolder;
+	width: 10%;
+}
+
+.index-pin {
+	border: 1px solid #d66;
+	width: 50%;
+	background-color: #fefefe;
+	border-radius: 50%;
+}
+
+.name {
+	float: left;
+	width: 45%;
+}
+
+.reps {
+	float: left;
+	width: 25%;
+}
+
+.spin {
+	float: left;
+	width: 20%;
+}
