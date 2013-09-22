@@ -14,6 +14,8 @@ MotionCapture::Application.configure do
   config.consider_all_requests_local       = false
   config.action_controller.perform_caching = true
 
+  config.action_controller.allow_forgery_protection = false
+
   # Load the fonts folder into the asset pipeline
   config.assets.paths << Rails.root.join('app', 'assets', 'fonts')
 
