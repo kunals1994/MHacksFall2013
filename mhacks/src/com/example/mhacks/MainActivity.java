@@ -5,10 +5,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.http.HttpResponse;
+import org.apache.http.StatusLine;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 
@@ -21,6 +22,7 @@ import android.content.IntentFilter.MalformedMimeTypeException;
 import android.hardware.Sensor;
 import android.hardware.SensorListener;
 import android.hardware.SensorManager;
+import android.media.MediaPlayer;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
@@ -105,6 +107,19 @@ public class MainActivity extends Activity implements SensorListener {
 						reps++; 
 						initialPositionAfterRep = true; 
 						new UploadWorkoutData().execute(reps + "");
+						
+						MediaPlayer mp = new MediaPlayer();
+						
+						String path = "";
+						String fileName = "";
+
+					    try {
+					        mp.setDataSource(path+"/"+fileName);
+					        mp.prepare();
+					        mp.start();
+					    } catch (Exception e) {
+					        e.printStackTrace();
+					    }
 					}
 					Log.d("reps", reps + "");
 				}
@@ -166,19 +181,26 @@ public class MainActivity extends Activity implements SensorListener {
 		}
 	}
 	
-	public static void sendHTTPPostRequest(String reps) {
+	public static void sendHTTPGetRequest(String reps) {
 		// Create a new HttpClient and Post Header
+		String url = "http://67.194.74.148:3000";
+		List params = new ArrayList();
+		params.add(new BasicNameValuePair("reps", "" + reps));
+		String paramString = URLEncodedUtils.format(params, "utf-8");
+		url += "?" + paramString;
 		HttpClient httpclient = new DefaultHttpClient();
-		HttpPost httppost = new HttpPost("http://localhost:3000/");
+		HttpGet httpget = new HttpGet(url);
+		httpget.setHeader("Accept", "application/javascript");
+		httpget.setHeader("Content-Type", "application/javascript");
+	
 
 		try {
-		    // Add your data
-		    List nameValuePairs = new ArrayList();
-			nameValuePairs.add(new BasicNameValuePair("reps", "" + reps));
-			httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
-
-		    // Execute HTTP Post Request
-		    HttpResponse response = httpclient.execute(httppost);
+//			httpget.setEntity(new UrlEncodedFormEntity(params));
+			Log.d("url", url + "");
+		    // Execute HTTP Get Request
+		    HttpResponse response = httpclient.execute(httpget);
+		    StatusLine statusLine = response.getStatusLine();
+		    Log.d("HTTP Status Code: ", statusLine.getStatusCode() + "");
 
 		} catch (ClientProtocolException e) {
 		    // TODO Auto-generated catch block
@@ -239,7 +261,7 @@ public class MainActivity extends Activity implements SensorListener {
 		@Override
 		  protected String doInBackground(String... params) {
 			// TODO Auto-generated method stub
-		        MainActivity.sendHTTPPostRequest(params[0]);
+		        MainActivity.sendHTTPGetRequest(params[0]);
 		        return null;
 		  }
 		protected void onPostExecute(Double result){
