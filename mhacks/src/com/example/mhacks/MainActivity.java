@@ -1,6 +1,5 @@
 package com.example.mhacks;
 
-<<<<<<< HEAD
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,8 +13,6 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 
 import android.R;
-=======
->>>>>>> c30bacac39d5068e16c42ce796aebc0ec48af2c7
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
